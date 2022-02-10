@@ -10,11 +10,19 @@ use std::time::Duration;
 // SDLL
 use spin_sleep;
 
+use asm6502::assemble;
+
 
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate bitflags;
+
+fn print_regs(cpu: &mut CPU) {
+    println!("A: {}", cpu.reg_a);
+    println!("X: {}", cpu.reg_x);
+    println!("Y: {}", cpu.reg_y);
+}
 
 fn main() {
 
@@ -273,23 +281,25 @@ fn main() {
         OpCode::new(0x28, "PLP", 1, 4, AddressingModeMain::NoneAddressing),
     ];
 
+    let commands = "LDA #1\nINX\nLDA #2".as_bytes();
+    let mut buf = Vec::<u8>::new();
+    if let Err(msg) = assemble(commands, &mut buf) {
+        panic!("Failed to assemble: {}", msg);
+    }
+
+    println!("{:?}", buf);
+
     // load the game
-    /*
     let bus = Bus::new();
     let mut cpu = CPU::new(bus);
-    cpu.load(snake_code);
+    cpu.load(buf);
     cpu.reset();
     cpu.program_counter = 0x0600;
 
-    let mut screen_state = [0 as u8; 32 * 3 * 32];
-    let mut rng = rand::thread_rng();
     // game cycle
-    */
-    let command: &str = "LDA";
-
-    for item in &codes {
-        if command == item.mnemonic {
-             println!("Code found = {:X}", item.code);
-         }
-    }
+    cpu.run_with_callback(move |cpu| {
+        print_regs(cpu);
+    });
+    
+    
 }
