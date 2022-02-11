@@ -660,6 +660,7 @@ impl CPU {
             self.program_counter = self.program_counter + 1;
             let pc_state = self.program_counter;
             let opcode = opcodes.get(&code).unwrap();
+            println!("Instruction Received: {}", opcode.mnemonic);
 
             match code {
                 // LDA
@@ -937,7 +938,6 @@ impl CPU {
             if pc_state == self.program_counter {
                 self.program_counter += (opcode.length - 1) as u16;
             }
-
             callback(self);
         }
     }
